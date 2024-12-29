@@ -55,7 +55,7 @@ def initialize_fields(json_data: list) -> tuple[list[dict], list, list]:
             {
                 "name": name,
                 "message_count": 0,
-                "reaction_cont": 0,
+                "reaction_count": 0,
                 "media_count": 0
             }
         )
@@ -70,7 +70,7 @@ def initialize_fields(json_data: list) -> tuple[list[dict], list, list]:
 
     message_dataframes = pd.concat(message_dataframes, ignore_index=True)
 
-    return names, message_dataframes
+    return participant_list, message_dataframes
 
 def remove_self_message_notifications(message_list) -> list[dict]:
     """
@@ -102,8 +102,19 @@ def get_reaction_stats(message_list, user_list):
         - Assumes all users in user_list are present in the groupchat
     """
 
-    for message in message_list:
-        return
+    all_reactions = message_list["reactions"]
+
+    all_reactions.dropna(inplace=True)
+
+    for reaction_subset in all_reactions:
+        for reaction in reaction_subset:
+            user = reaction.get("actor")
+            for person in user_list:
+                if person.get("name") == user:
+                    person["reaction_count"] += 1
+
+    all_reactions.to_csv("reactions.csv")
+    #print(all_reactions)
 
 
 
