@@ -14,21 +14,41 @@ def decode_utf8(str):
     decoded_str = pattern.sub(decode_m, str)
     return decoded_str
 
-def create_json_file() -> any:
-    json_file = input("Please proide the input path for the JSON file: ")
-    # Path to file: C:\Users\matth\OneDrive\Code\message_1.json
-    json_file = json_file.replace('\\', '/')
+def create_json_file() -> list[any]:
 
-    with open(json_file, 'r', encoding="utf-8") as file:
-        json_data = json.load(file)
+    # Instagram JSON message files are limited to 10 000 messages/file, so we ask the user how many files they want to pass
+    n_files = int(input("How many JSON files to be passed?: "))
+
+    files = []
+    for i in range(n_files):
+        json_file = input("Please proide the input path for the JSON file " + str(i + 1) + ": ")
+        json_file = json_file.replace('\\', '/')
+       
+        with open(json_file, 'r', encoding="utf-8") as open_file:
+            json_data = json.load(open_file)
+            files.append(json_data)
+
     
-    return json_data
+    return files
 
-def initialize_fields(json_data) -> list[any]:
+
+def initialize_fields(json_data: list) -> tuple[list[dict], list, list]:
+    """
+    Inits participant, message, reaction fields. Returns a tuple of these 3 fields.
+
+    Args:
+        - json_data: list of loaded JSON data
+    
+    Returns:
+        - list of dictionaries for each participant's stats
+    """
+
+
     participant_list = []
 
-    participants = pd.json_normalize(json_data["participants"])
-    names = participants["name"].tolist()
+    # Must assume that participants remain the same thoughout the files
+    participants = json_data[0].get("participants", [])
+    names = [participant["name"] for participant in participants]
 
     for name in names:
         participant_list.append(
@@ -40,9 +60,17 @@ def initialize_fields(json_data) -> list[any]:
             }
         )
 
-    messages = pd.json_normalize(json_data["messages"])
+    #messages = pd.json_normalize(json_data["messages"])
+    message_dataframes = []
+    for item in json_data:
+        messages = item.get("messages", [])
+        
+        if isinstance(messages, list) and messages:
+            message_dataframes.append(pd.DataFrame(messages))
 
-    return names, messages
+    message_dataframes = pd.concat(message_dataframes, ignore_index=True)
+
+    return names, message_dataframes
 
 #print(decode_utf8(messages.iloc[6,0]))
 #print(names)
