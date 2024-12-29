@@ -2,6 +2,15 @@ import pandas as pd
 import json
 
 def create_json_file() -> list[any]:
+    """
+    Creates one json file from all provided files.
+
+    Args:
+        - None
+    
+    Returns:
+        - A list of all JSON fields
+    """
 
     # Instagram JSON message files are limited to 10 000 messages/file, so we ask the user how many files they want to pass
     n_files = int(input("How many JSON files to be passed?: "))
@@ -30,7 +39,6 @@ def initialize_fields(json_data: list) -> tuple[list[dict], list, list]:
         - list of dictionaries for each participant's stats
     """
 
-
     participant_list = []
 
     # Must assume that participants remain the same thoughout the files
@@ -50,7 +58,6 @@ def initialize_fields(json_data: list) -> tuple[list[dict], list, list]:
             }
         )
 
-    #messages = pd.json_normalize(json_data["messages"])
     message_dataframes = []
     for item in json_data:
         messages = item.get("messages", [])
@@ -125,7 +132,6 @@ def get_media_stats(message_list, user_list):
 
     all_audio = pd.DataFrame(columns=["name", "audio"])
 
-    i = 0
     for row in message_list:
         all_photos["name"] = message_list["sender_name"]
         all_photos["photos"] = message_list["photos"]
@@ -175,3 +181,22 @@ def get_media_stats(message_list, user_list):
         for user in user_list:
             if user.get("name") == sender_name:
                 user["audio_count"] += 1
+
+def get_message_stats(message_list, user_list):
+    unwanted_message_pattern = r"[a-zA-Z0-9]+ sent"
+
+    raw_messages = message_list[~message_list["content"].str.contains(unwanted_message_pattern, na=False)]
+
+    all_messages = pd.DataFrame(columns=["name", "message"])
+    for row in message_list:
+        all_messages["name"] = message_list["sender_name"]
+        all_messages["message"] = message_list["content"]
+    
+    message_condition = all_messages.iloc[:, 1].isna()
+    all_messages_filtered = all_messages[~message_condition]
+
+    for index, row in all_messages_filtered.iterrows():
+        sender_name = row[0]
+        for user in user_list:
+            if user.get("name") == sender_name:
+                user["message_count"] += 1
