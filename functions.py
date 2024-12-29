@@ -72,6 +72,41 @@ def initialize_fields(json_data: list) -> tuple[list[dict], list, list]:
 
     return names, message_dataframes
 
+def remove_self_message_notifications(message_list) -> list[dict]:
+    """
+    Since Instagram classifies notifications such as "xxx liked your message" as a sent message, this function removes them since the stats are still counted in the actual messages
+
+    Args:
+        - A list of messages
+    
+    Returns:
+        - A list of filtered messages
+    """
+    unwanted_message_pattern = r"[a-zA-Z0-9]+ (changed|reacted|set|liked|sent)"
+
+    filtered_messages = message_list[~message_list["content"].str.contains(unwanted_message_pattern, na=False)]
+    return filtered_messages
+        
+def get_reaction_stats(message_list, user_list):
+    """
+    Finds reaction fields within a list of messages.
+    
+    Args:
+        - A list of messages
+        - A list of users from the groupchat
+    
+    Returns:
+        - None
+
+    Preconditions:
+        - Assumes all users in user_list are present in the groupchat
+    """
+
+    for message in message_list:
+        return
+
+
+
 #print(decode_utf8(messages.iloc[6,0]))
 #print(names)
 #print(messages)
