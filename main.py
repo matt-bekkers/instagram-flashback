@@ -1,8 +1,6 @@
 from functions import *
 import pandas as pd
 
-# C:\Users\matth\OneDrive\Code\instagram-flashback\message_1.json
-# C:\Users\matth\OneDrive\Code\instagram-flashback\message_2.json
 json_data = create_json_file()
 
 names, messages = initialize_fields(json_data)
@@ -21,5 +19,5 @@ for name in names:
     print("Photos sent: " + str(name.get("photos_count")))
     print("Reels and posts sent: " + str(name.get("reels_posts_count")))
     print("Videos sent: " + str(name.get("video_count")))
-    print("Audios sent " + str(name.get("audio_count")))
+    print("Audios sent: " + str(name.get("audio_count")))
     print(("*************************************************"))
