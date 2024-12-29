@@ -1,18 +1,5 @@
 import pandas as pd
 import json
-import re
-
-def decode_utf8(str: str) -> str:
-    # regex to find utf-8 sequences
-    pattern = re.compile(r"(\\u[0-9a-fA-F]{4})+")
-
-    def decode_m(match):
-        utf8_sequence = match.group(0)
-        utf8_bytes = utf8_sequence.encode("latin1").decode("unicode_escape").encode("latin1")
-        return utf8_bytes.decode("utf-8")
-    
-    decoded_str = pattern.sub(decode_m, str)
-    return decoded_str
 
 def create_json_file() -> list[any]:
 
@@ -117,7 +104,6 @@ def get_reaction_stats(message_list, user_list):
                     person["reaction_count"] += 1
 
     all_reactions.to_csv("reactions.csv")
-    #print(all_reactions)
 
 def get_media_stats(message_list, user_list):
     """
@@ -130,8 +116,6 @@ def get_media_stats(message_list, user_list):
     Returns:
         - None
     """
-
-    #all_photos = message_list["photos"]
 
     all_photos = pd.DataFrame(columns=["name", "photos"])
 
@@ -191,15 +175,3 @@ def get_media_stats(message_list, user_list):
         for user in user_list:
             if user.get("name") == sender_name:
                 user["audio_count"] += 1
-    
-    all_photos_filtered.to_csv("photos.csv")
-    all_posts_reels_filtered.to_csv("postsreels.csv")
-    all_videos_filtered.to_csv("videos.csv")
-    all_audio_filtered.to_csv("audio.csv")
-
-
-
-
-#print(decode_utf8(messages.iloc[6,0]))
-#print(names)
-#print(messages)
